@@ -5,7 +5,7 @@
 ### 1. Configure this command in bash.bashrc in order for every command to be logged in the following order
 
 ```bash
-echo -e '\nexport PROMPT_COMMAND='\''PREV_CMD=$(history 1); RETRN_VAL=$?; if [ "$PREV_CMD" != "$LAST_CMD" ]; then logger -p local6.debug -t Bash_History "$(logname) : $(whoami) : $(pwd) - $(echo "$PREV_CMD")"; fi; LAST_CMD="$PREV_CMD"'\''' >> /etc/bash.bashrc
+sudo echo -e '\nexport PROMPT_COMMAND="PREV_CMD=\$(history 1); RETRN_VAL=\$?; if [ \"\$PREV_CMD\" != \"\$LAST_CMD\" ]; then logger -p local6.debug -t Bash_History \"srcuser: \$(logname) : dstuser: \$(whoami) : \$(pwd) - \$(echo \"\$PREV_CMD\")\"; fi; LAST_CMD=\"\$PREV_CMD\""' >> /etc/bash.bashrc
 ```
 
 ### Use this command to apply this change in your terminal

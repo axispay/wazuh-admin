@@ -2,10 +2,16 @@
 
 ## Linux configuration
 
-### 1. Update bash configuration
+### 1. Configure this command in bash.bashrc in order for every command to be logged in the following order
 
 ```bash
-echo 'export PROMPT_COMMAND='\''PREV_CMD=$(history 1); RETRN_VAL=$?; if [ "$PREV_CMD" != "$LAST_CMD" ]; then logger -p local6.debug -t Bash_History "$(srcuser) : $(dstuser) : $(pwd) - $(echo "$PREV_CMD")"; fi; LAST_CMD="$PREV_CMD"'\''' | sudo tee -a /etc/bash.bashrc > /dev/null
+echo -e '\nexport PROMPT_COMMAND='\''PREV_CMD=$(history 1); RETRN_VAL=$?; if [ "$PREV_CMD" != "$LAST_CMD" ]; then logger -p local6.debug -t Bash_History "$(logname) : $(whoami) : $(pwd) - $(echo "$PREV_CMD")"; fi; LAST_CMD="$PREV_CMD"'\''' >> /etc/bash.bashrc
+```
+
+### Use this command to apply this change in your terminal
+
+```bash
+source bash.bashrc
 ```
 
 ### 2. Create rsyslog configuration file and add the following line to specify the log destination
@@ -64,14 +70,14 @@ sudo nano /var/ossec/etc/decoders/local_decoder.xml
 
 <decoder name="Bash_History">
   <parent>Bash_History</parent>
-  <regex>^\s*(\S+)\s*:</regex>
-  <order>logname</order>
+  <regex>srcuser:\s*(\S+)\s*:</regex>
+  <order>srcuser</order>
 </decoder>
 
 <decoder name="Bash_History">
   <parent>Bash_History</parent>
-  <regex>:\s(\S+)\s:</regex>
-  <order>whoami</order>
+  <regex>dstuser:\s*(\S+)\s*:</regex>
+  <order>dstuser</order>
 </decoder>
 
 <decoder name="Bash_History">
@@ -108,17 +114,16 @@ sudo nano /var/ossec/etc/rules/local_rules.xml
 ### Copy a raw log from the Wazuh Agent to test it:
 
 ```bash
-sudo tail /var/log/commands.log
+sudo tail /var/log/syslog
 ```
 ### The output of the logs should return like this:
 
 ```
-Jan 12 21:14:49 suricata Bash_History: sukuna : root : /var/lib/suricata/rules -   270  cd rules/
-Jan 12 21:14:50 suricata Bash_History: sukuna : root : /var/lib/suricata/rules -   271  ls
-Jan 13 00:56:58 suricata Bash_History: sukuna : root : /var/lib/suricata/rules -   272  nano suricata.rules
-Jan 13 00:57:13 suricata Bash_History: sukuna : root : /var/lib/suricata/rules -   273  tail /var/log/commands.log
-Jan 13 00:59:16 suricata Bash_History: sukuna : root : /var/lib/suricata/rules -   274  nano /etc/bash.bashrc
-Jan 13 01:00:46 suricata Bash_History: sukuna : root : /var/lib/suricata/rules -   275  systemctl start suricata.service
+Jan 14 03:31:02 suricata Bash_History: srcuser: sukuna : dstuser: root : /etc/rsyslog.d -   155  ls
+Jan 14 03:31:06 suricata Bash_History: srcuser: sukuna : dstuser: root : /home/sukuna -   156  cd /home/sukuna/
+Jan 14 03:31:14 suricata Bash_History: srcuser: sukuna : dstuser: root : /home/sukuna/Suricata -   157  cd Suricata/
+Jan 14 03:31:15 suricata Bash_History: srcuser: sukuna : dstuser: root : /home/sukuna/Suricata -   158  ls
+Jan 14 03:31:21 suricata Bash_History: srcuser: sukuna : dstuser: root : /home/sukuna/Suricata -   159  python3 echo.py
 ```
 
 ### Run `wazuh-logtest` to simulate a log entry and check if the decoder and rule are working as expected:
@@ -129,26 +134,26 @@ sudo bash /var/ossec/bin/wazuh-logtest
 ### Paste the log you have entered to intiate the log test:
 
 ```
-Jan 11 16:10:53 suricata LinuxCommandsWazuh: User root [4404]:   119  systemctl restart wazuh-agent
+Jan 14 03:31:21 suricata Bash_History: srcuser: sukuna : dstuser: root : /home/sukuna/Suricata -   159  python3 echo.py
 ```
 
 ### The result should come out like this:
 
 ```
-Jan 12 21:14:34 suricata Bash_History: sukuna : root : /var/lib/suricata -   265  cd /var/lib/suricata/
+Jan 14 03:21:56 suricata Bash_History: srcuser: sukuna : dstuser: root : /etc/rsyslog.d -   150  test
 
 **Phase 1: Completed pre-decoding.
-        full event: 'Jan 12 21:14:34 suricata Bash_History: sukuna : root : /var/lib/suricata -   265  cd /var/lib/suricata/'
-        timestamp: 'Jan 12 21:14:34'
+        full event: 'Jan 14 03:21:56 suricata Bash_History: srcuser: sukuna : dstuser: root : /etc/rsyslog.d -   150  test'
+        timestamp: 'Jan 14 03:21:56'
         hostname: 'suricata'
         program_name: 'Bash_History'
 
 **Phase 2: Completed decoding.
         name: 'Bash_History'
-        command: '   265  cd /var/lib/suricata/'
-        logname: 'sukuna'
-        pwd: '/var/lib/suricata'
-        whoami: 'root'
+        command: '   150  test'
+        dstuser: 'root'
+        pwd: '/etc/rsyslog.d'
+        srcuser: 'sukuna'
 
 **Phase 3: Completed filtering (rules).
         id: '100010'

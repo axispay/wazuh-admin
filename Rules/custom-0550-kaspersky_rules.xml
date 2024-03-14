@@ -1,0 +1,13 @@
+<!--
+  -  Kaspersky ruleset
+  -  Created by Axis Organization
+  -  Custom logs for the production/staging/HQ environments
+  -  Reference on how regex are made https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/regex.html#pcre2-syntax
+-->
+
+<group name="kaspersky,">
+    <rule id="17001" level="3">
+        <decoded_as>kaspersky-logs</decoded_as>
+        <description>Kaspersky Endpoint Security - $(event_display)</description>
+    </rule>
+</group>

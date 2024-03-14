@@ -1,0 +1,78 @@
+<!--
+  -  Kaspersky decoders
+  -  Created by Axis Organization
+  -  Custom logs for the production/staging/HQ environments
+  -  Reference on how regex are made https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/regex.html#pcre2-syntax
+-->
+
+<decoder name="kaspersky-logs">
+    <type>syslog</type>
+    <prematch>^1 20\d\d-\d\d-\d\d\w\d\d:\d\d:\d\d.\d+Z kaspersky\.axispay\.app</prematch>
+</decoder>  
+
+<decoder name="kaspersky-logs">
+  <parent>kaspersky-logs</parent>
+  <regex>hip="(\.*)"</regex>
+  <order>host_ip</order>
+</decoder>
+
+<decoder name="kaspersky-logs">
+  <parent>kaspersky-logs</parent>
+  <regex>etdn="(\.*)"</regex>
+  <order>event_display</order>
+</decoder>
+
+<decoder name="kaspersky-logs">
+  <parent>kaspersky-logs</parent>
+  <regex>hdn="(\.*)"</regex>
+  <order>host_domain</order>
+</decoder>
+
+<decoder name="kaspersky-logs">
+  <parent>kaspersky-logs</parent>
+  <regex>kscfqdn="(\.*)"</regex>
+  <order>ksc_fqdn</order>
+</decoder>
+
+<decoder name="kaspersky-logs">
+  <parent>kaspersky-logs</parent>
+  <regex>gn="(\.*)"</regex>
+  <order>group_name</order>
+</decoder>
+
+<decoder name="kaspersky-logs">
+  <parent>kaspersky-logs</parent>
+  <regex>et="(\.*)"</regex>
+  <order>event_type</order>
+</decoder>
+
+<decoder name="kaspersky-logs">
+  <parent>kaspersky-logs</parent>
+  <regex>p4="(\.*)"</regex>
+  <order>param4</order>
+</decoder>
+
+<decoder name="kaspersky-logs">
+  <parent>kaspersky-logs</parent>
+  <regex>p3="(\.*)"</regex>
+  <order>param3</order>
+</decoder>
+
+<decoder name="kaspersky-logs">
+  <parent>kaspersky-logs</parent>
+  <regex>p2="(\.*)"</regex>
+  <order>param2</order>
+</decoder>
+
+<decoder name="kaspersky-logs">
+  <parent>kaspersky-logs</parent>
+  <regex>p1="(\.*)"</regex>
+  <order>param1</order>
+</decoder>
+
+<!-- <decoder name="kaspersky-logs-desc">
+  <parent>kaspersky-logs</parent>
+  <prematch offset="after_parent">\[.*?\]</prematch>
+  <regex type="pcre2" offset="after_parent">\[.*?\](.*)</regex>
+  <order>full_desc</order>
+</decoder> -->

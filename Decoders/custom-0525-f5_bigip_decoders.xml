@@ -355,7 +355,7 @@ Log samples:
 <decoder name="f5-bigip-cef-general-fields">
   <parent>f5-bigip-cef</parent>
   <regex type="pcre2">cs6=(.*)\scs6Label=geo_location</regex>
-  <order>geo.location</order>
+  <order>dstcountry</order>
 </decoder>
 
 <decoder name="f5-bigip-cef-general-fields">

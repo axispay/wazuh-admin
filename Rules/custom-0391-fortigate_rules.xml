@@ -1,20 +1,33 @@
-<!--
-  Copyright (C) 2015, Wazuh Inc.
--->
-
-<!--
-  Rules for:
-    FortiGate ID: 81600 - 80799
+<!-- 
+  Custom logs for the production/STG/HQ environments
+  Reference for how the rules are made https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/rules.html#decoded-as
+  Reference for https://documentation.wazuh.com/current/user-manual/ruleset/rules-classification.html
 -->
 
 <group name="fortigate,syslog,">
-
-  <rule id="181629" level="10">
+  <rule id="81629" level="6" overwrite="yes">
     <if_sid>81603</if_sid>
     <match>attack</match>
-    <action>dropped</action>
-    <description>Fortigate attack dropped.</description>
+    <field name="subtype">ips</field>
+    <description>Fortigate attack: $(attack).</description>
     <group>attack,gdpr_IV_35.7.d,hipaa_164.312.b,nist_800_53_AU.6,pci_dss_10.6.1,</group>
   </rule>
 
+  <rule id="81633" level="2" overwrite="yes">
+    <if_sid>81603</if_sid>
+    <match>subtype="app-ctrl"|subtype=app-ctrl</match>
+    <action>pass</action>
+    <description>Fortigate: App passed by firewall.</description>
+    <group>gdpr_IV_35.7.d,hipaa_164.312.b,nist_800_53_AU.6,pci_dss_10.6.1,</group>
+  </rule>
+
+  <rule id="181600" level="6">
+    <if_sid>81622</if_sid>
+    <list field="dstuser" lookup="match_key">etc/lists/VPN-users</list>
+    <description>Unauthorized VPN User $(dstuser)</description>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+    <group>authentication_success,gdpr_IV_32.2,gpg13_7.1,hipaa_164.312.b,nist_800_53_AC.7,nist_800_53_AU.14,pci_dss_10.2.5,VPN-users,</group>
+  </rule>
 </group>

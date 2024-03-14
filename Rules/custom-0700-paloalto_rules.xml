@@ -1,0 +1,533 @@
+<!--
+  Copyright (C) 2015, Wazuh Inc.
+-->
+
+<!-- 
+  Palo Alto v8.X - v10.X rules
+    Palo Alto rules ID:           64500 - 64508
+-->
+
+<group name="paloalto,">
+
+  <!-- Generic rule -->
+  <rule id="64500" level="0">
+    <decoded_as>paloalto</decoded_as>
+    <description>Palo Alto $(type) event.</description>
+  </rule>
+
+  <!-- Generic by severity(informational, low, medium, high, critical) rules, THREAT and SYSTEM only so far -->
+  <rule id="64501" level="2">
+    <if_sid>64500</if_sid>
+    <field name="severity" type="pcre2">(?i)^(?:informational|low)$</field>
+    <description>Palo Alto $(type): $(severity) event.</description>
+  </rule>
+
+  <rule id="64502" level="3">
+    <if_sid>64500</if_sid>
+    <field name="severity" type="pcre2">(?i)^medium$</field>
+    <description>Palo Alto $(type): $(severity) event.</description>
+  </rule>
+
+  <rule id="64503" level="5">
+    <if_sid>64500</if_sid>
+    <field name="severity" type="pcre2">(?i)^high$</field>
+    <description>Palo Alto $(type): $(severity) event.</description>
+  </rule>
+
+  <rule id="64504" level="11">
+    <if_sid>64500</if_sid>
+    <field name="severity" type="pcre2">(?i)^critical$</field>
+    <description>Palo Alto $(type): $(severity) event.</description>
+  </rule>
+
+  <!-- Specific rules -->
+  <!-- Traffic -->
+  <rule id="64505" level="0">
+    <if_sid>64500</if_sid>
+    <field name="type">^Traffic$</field>
+    <field name="content_type" type="pcre2">(?i)^.+$</field>
+    <description>Palo Alto Traffic: $(content_type) event.</description>
+  </rule>
+
+  <rule id="64506" level="2">
+    <if_sid>64505</if_sid>
+    <field name="content_type">start</field>
+    <description>Palo Alto Traffic: Session started log on $(device_name).</description>
+    <group>gdpr_IV_35.7.d,gpg13_4.12,hipaa_164.312.b,pci_dss_1.4,pci_dss_10.6.1,pci_dss_11.4,tsc_CC6.1,tsc_CC6.7,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,tsc_CC7.4,</group>
+  </rule>
+
+  <rule id="64507" level="2">
+    <if_sid>64505</if_sid>
+    <field name="content_type">end</field>
+    <description>Palo Alto Traffic: Session ended on $(device_name) from $(srcip) to $(dstip). Reason: $(session_end_reason).</description>
+    <group>gdpr_IV_35.7.d,gpg13_4.12,hipaa_164.312.b,pci_dss_1.4,pci_dss_10.6.1,pci_dss_11.4,tsc_CC6.1,tsc_CC6.7,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,tsc_CC7.4,</group>
+  </rule>
+
+  <rule id="64508" level="6">
+    <if_sid>64505</if_sid>
+    <field name="content_type" type="pcre2">^(?:drop|deny)$</field>
+    <description>Palo Alto Traffic: Session dropped on $(device_name) from $(srcip) to $(dstip). Reason: $(session_end_reason). Action: $(action).</description>
+    <mitre>
+      <id>T1072</id>
+      <id>T1190</id>
+    </mitre>
+    <group>gdpr_IV_35.7.d,gpg13_4.12,hipaa_164.312.b,pci_dss_1.4,pci_dss_10.6.1,pci_dss_11.4,tsc_CC6.1,tsc_CC6.7,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,tsc_CC7.4,</group>
+  </rule>
+
+<!--
+  This is a custom rule file for the PROD & STG environments. Reference for how a rule is made is through here:
+  https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/rules.html
+-->
+
+<!-- 
+  Palo Alto v8.X - v10.X rules
+    Palo Alto custom rules ID:           164509 - 164548
+-->
+
+<!-- Portal Zone rules -->
+
+<!--############################################## 10.100.61.2 #############################################################-->
+
+<rule id="164509" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.61.2</srcip>
+    <dstip>10.100.11.2</dstip>
+    <dstip>10.100.12.2</dstip>
+    <dstip>10.100.13.2</dstip>
+    <dstip>10.100.14.2</dstip>
+    <dstip>10.100.80.2</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!--############################################## 10.100.36.0/24 #############################################################-->
+
+<rule id="164510" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.36.2</srcip>
+    <srcip>10.100.36.20</srcip>
+    <dstip>10.100.12.2</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<rule id="164511" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.36.2</srcip>
+    <srcip>10.100.36.23</srcip>
+    <dstip>10.100.92.2</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<rule id="164512" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.36.2</srcip>
+    <srcip>10.100.36.21</srcip>
+    <dstip>10.100.10.2</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<rule id="164513" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.36.2</srcip>
+    <srcip>10.100.36.31</srcip>
+    <dstip>10.100.204.2</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!--############################################## 10.100.150.2 #############################################################-->
+
+<rule id="164519" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.11.2</srcip>
+    <srcip>10.100.12.2</srcip>
+    <srcip>10.100.13.2</srcip>
+    <srcip>10.100.14.2</srcip>
+    <srcip>10.100.80.2</srcip>
+    <srcip>10.100.17.2</srcip>
+    <srcip>10.100.91.2</srcip>
+    <srcip>10.100.92.2</srcip>
+    <srcip>10.100.10.2</srcip>
+    <srcip>10.100.10.3</srcip>
+    <srcip>10.100.204.2</srcip>
+    <dstip>10.100.150.2</dstip>
+    <dstport negate="yes" type="pcre2">(^13000$|^13111$|^17000$|^19170$|^8060$|^8061$|^13291$|^13299$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!--############################################## 10.100.191.2 #############################################################-->
+
+<rule id="164520" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.191.2</srcip>
+    <dstip>10.100.11.2</dstip>
+    <dstip>10.100.12.2</dstip>
+    <dstip>10.100.13.2</dstip>
+    <dstip>10.100.14.2</dstip>
+    <dstip>10.100.80.2</dstip>
+    <dstip>10.100.17.2</dstip>
+    <dstip>10.100.91.2</dstip>
+    <dstip>10.100.92.2</dstip>
+    <dstip>10.100.10.2</dstip>
+    <dstip>10.100.10.3</dstip>
+    <dstport negate="yes" type="pcre2">(^9100$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!--############################################## 10.20.30.1 #############################################################-->
+
+<!--Source-->
+<rule id="164521" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.20.30.1</srcip>
+    <dstip>10.100.12.2</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^993$|^995$|^465$|^587$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!--Destination-->
+<rule id="164522" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.17.2</srcip>
+    <srcip>10.100.91.2</srcip>
+    <srcip>10.100.92.2</srcip>
+    <srcip>10.100.204.2</srcip>
+    <dstip>10.20.30.1</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^993$|^995$|^465$|^587$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<rule id="164523" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.10.2</srcip>
+    <srcip>10.100.10.3</srcip>
+    <dstip>10.20.30.1</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^6325$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!--############################################## 10.100.130.0/24 #############################################################-->
+
+<rule id="164524" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.11.2</srcip>
+    <srcip>10.100.12.2</srcip>
+    <srcip>10.100.13.2</srcip>
+    <srcip>10.100.14.2</srcip>
+    <srcip>10.100.80.2</srcip>
+    <srcip>10.100.17.2</srcip>
+    <srcip>10.100.91.2</srcip>
+    <srcip>10.100.92.2</srcip>
+    <srcip>10.100.10.2</srcip>
+    <srcip>10.100.10.3</srcip>
+    <dstip>10.100.130.2</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^444$|^514$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<rule id="164525" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.204.2</srcip>
+    <dstip>10.100.130.4</dstip>
+    <dstip>10.100.130.2</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^444$|^514$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!--############################################## (10.100.30.0/24) #############################################################-->
+
+<rule id="164526" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.11.2</srcip>
+    <srcip>10.100.12.2</srcip>
+    <srcip>10.100.13.2</srcip>
+    <srcip>10.100.14.2</srcip>
+    <srcip>10.100.17.2</srcip>
+    <srcip>10.100.10.2</srcip>
+    <srcip>10.100.10.3</srcip>
+    <srcip>10.100.204.2</srcip>
+    <dstip>10.100.30.29</dstip>
+    <dstip>10.100.30.28</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<rule id="164527" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.30.2</srcip>
+    <srcip>10.100.30.3</srcip>
+    <srcip>10.100.30.4</srcip>
+    <srcip>10.100.30.5</srcip>
+    <srcip>10.100.30.6</srcip>
+    <srcip>10.100.30.7</srcip>
+    <dstip>10.100.91.2</dstip>
+    <dstport negate="yes" type="pcre2">(^47836$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!--############################################## STG #############################################################-->
+
+<rule id="164528" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.14.2</srcip>
+    <match type="pcre2">10\.100\.14\.2,10\.200\.\d+\.\d+</match>
+    <dstport negate="yes" type="pcre2">(^443$|^993$|^995$|^465$|^587$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!--############################################## Transaction-service #############################################################-->
+
+<rule id="164529" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.80.2</srcip>
+    <dstip>10.10.31.3</dstip>
+    <dstport negate="yes" type="pcre2">(^7703$|^7503$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!--############################################## 10.100.19.2 #############################################################-->
+
+<rule id="164530" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.10.2</srcip>
+    <srcip>10.100.10.3</srcip>
+    <dstip>10.100.19.2</dstip>
+    <dstport negate="yes" type="pcre2">(^9200$|^5382$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Portal Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!-- Integration Zone -->
+
+<!--############################################## 10.100.19.2 #############################################################-->
+
+<rule id="164531" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.15.2</srcip>
+    <srcip>10.100.70.2</srcip>
+    <srcip>10.100.90.2</srcip>
+    <dstip>10.100.19.2</dstip>
+    <dstport negate="yes" type="pcre2">(^9200$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Integeration Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!--############################################## 10.100.150.2 #############################################################-->
+
+<rule id="164532" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.15.2</srcip>
+    <srcip>10.100.70.2</srcip>
+    <srcip>10.100.90.2</srcip>
+    <dstip>10.100.150.2</dstip>
+    <dstport negate="yes" type="pcre2">(^13000$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Integeration Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!--############################################## 10.100.30.29 #############################################################-->
+
+<rule id="164533" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.15.2</srcip>
+    <srcip>10.100.90.2</srcip>
+    <dstip>10.100.30.29</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Integeration Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!--############################################## 10.100.130.2 #############################################################-->
+
+<rule id="164534" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.70.2</srcip>
+    <srcip>10.100.90.2</srcip>
+    <dstip>10.100.130.2</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^444$|^514$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Integeration Zone Mismatch Event on port $(dstport)</description>
+</rule>
+
+<!--############################################## 10.100.191.2 #############################################################-->
+
+<rule id="164535" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.191.2</srcip>
+    <dstip>10.100.90.2</dstip>
+    <dstport negate="yes" type="pcre2">(^9100$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Integeration Zone Mismatch Event on port $(dstport)</description>
+ </rule>
+
+ <!-- Jumping Zone -->
+
+<!--############################################## 10.100.40.0/24 #############################################################-->
+
+<rule id="164536" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.61.2</srcip>
+    <srcip>10.100.62.1</srcip>
+    <srcip>10.100.62.2</srcip>
+    <dstip>10.100.40.2</dstip>
+    <dstip>10.100.40.3</dstip>
+    <dstip>10.100.40.4</dstip>
+    <dstport negate="yes" type="pcre2">(^27017$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Jumping Zone Mismatch Event on port $(dstport)</description>
+ </rule>
+
+<!--############################################## 10.100.30.2, 10.100.30.3 #############################################################-->
+
+<rule id="164537" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.61.2</srcip>
+    <dstip>10.100.30.2</dstip>
+    <dstport negate="yes" type="pcre2">(^32184$|^32643$|^32755$|^31106$|^31857$|^31976$|^32584$|^32019$|^30463$|^32670$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Jumping Zone Mismatch Event on port $(dstport)</description>
+ </rule>
+ 
+<rule id="164538" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.62.1</srcip>
+    <dstip>10.100.30.2</dstip>
+    <dstport negate="yes" type="pcre2">(^32643$|^30449$|^30412$|^30435$|^31106$|^31976$|^32019$|^32184$|^32755$|^30463$|^31857$|^32670$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Jumping Zone Mismatch Event on port $(dstport)</description>
+ </rule>
+
+<rule id="164539" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.62.2</srcip>
+    <dstip>10.100.30.2</dstip>
+    <dstport negate="yes" type="pcre2">(^32584$|^32629$|^32674$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Jumping Zone Mismatch Event on port $(dstport)</description>
+ </rule>
+
+<rule id="164540" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.62.1</srcip>
+    <dstip>10.100.30.3</dstip>
+    <dstport negate="yes" type="pcre2">(^32670$|^31857$|^30463$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Jumping Zone Mismatch Event on port $(dstport)</description>
+ </rule>
+
+<!--############################################## 10.100.20.4 #############################################################-->
+
+<rule id="164541" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.61.2</srcip>
+    <srcip>10.100.62.1</srcip>
+    <srcip>10.100.62.2</srcip>
+    <dstip>10.100.20.4</dstip>
+    <dstport negate="yes" type="pcre2">(^6443$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Jumping Zone Mismatch Event on port $(dstport)</description>
+ </rule>
+
+<!--############################################## 10.100.50.2 #############################################################-->
+
+<rule id="164542" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.61.2</srcip>
+    <srcip>10.100.62.1</srcip>
+    <dstip>10.100.50.2</dstip>
+    <dstport negate="yes" type="pcre2">(^3306$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Jumping Zone Mismatch Event on port $(dstport)</description>
+ </rule>
+
+<!--############################################## 10.100.50.3 #############################################################-->
+
+<rule id="164543" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.62.1</srcip>
+    <dstip>10.100.50.3</dstip>
+    <dstport negate="yes" type="pcre2">(^3306$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Jumping Zone Mismatch Event on port $(dstport)</description>
+ </rule>
+
+<!--############################################## 10.100.30.29, 10.100.70.2, 10.100.13.2 #############################################################-->
+
+<rule id="164544" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.61.2</srcip>
+    <srcip>10.100.62.1</srcip>
+    <dstip>10.100.30.29</dstip>
+    <dstip>10.100.70.2</dstip>
+    <dstip>10.100.13.2</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Jumping Zone Mismatch Event on port $(dstport)</description>
+ </rule>
+
+<!--############################################## 10.100.11.2, 10.100.12.2, 10.100.14.2, 10.100.30.30, 10.100.80.2 #############################################################-->
+
+<rule id="164545" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.62.1</srcip>
+    <dstip>10.100.30.30</dstip>
+    <dstip>10.100.11.2</dstip>
+    <dstip>10.100.12.2</dstip>
+    <dstip>10.100.14.2</dstip>
+    <dstip>10.100.80.2</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Jumping Zone Mismatch Event on port $(dstport)</description>
+ </rule>
+
+<!--############################################## 10.100.130.2, 10.100.130.6 #############################################################-->
+
+<rule id="164546" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.61.2</srcip>
+    <dstip>10.100.130.2</dstip>
+    <dstport negate="yes" type="pcre2">(^443$|^444$|^514$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Jumping Zone Mismatch Event on port $(dstport)</description>
+ </rule>
+
+<rule id="164547" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.62.1</srcip>
+    <srcip>10.100.62.2</srcip>
+    <dstip>10.100.130.2</dstip>
+    <dstport negate="yes" type="pcre2">(^444$|^514$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Jumping Zone Mismatch Event on port $(dstport)</description>
+ </rule>
+ 
+
+<rule id="164548" level="12">
+    <if_sid>64500, 64501, 64502, 64503, 64504, 64505, 64506, 64507, 64508</if_sid>
+    <srcip>10.100.61.2</srcip>
+    <dstip>10.100.130.6</dstip>
+    <dstport negate="yes" type="pcre2">(^444$|^514$|^0$|^123$)</dstport>
+    <action type="pcre2">^allow$</action>
+    <description>Palo Alto: Jumping Zone Mismatch Event on port $(dstport)</description>
+ </rule>
+
+</group>

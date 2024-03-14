@@ -1,0 +1,30 @@
+<!-- 
+  Custom logs for the production/STG/HQ environments
+  Reference for how regex are made https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/regex.html#pcre2-syntax
+-->
+
+<decoder name="nginx-errorlog-ip" >
+  <parent>nginx-errorlog</parent>
+  <regex>server: (\.*),</regex>
+  <order>server</order>
+</decoder>
+
+<decoder name="nginx-errorlog-ip" >
+  <parent>nginx-errorlog</parent>
+  <regex>request: "(\w+) (\S+) (HTTP\S+)",</regex>
+  <order>http.method, url, http.version</order>
+</decoder>
+
+
+<decoder name="nginx-errorlog-ip" >
+  <parent>nginx-errorlog</parent>
+  <regex>host: "(\.*)"</regex>
+  <order>host</order>
+</decoder>
+
+
+<decoder name="nginx-errorlog-ip" >
+  <parent>nginx-errorlog</parent>
+  <regex>referrer: "(\.*)"</regex>
+  <order>referrer</order>
+</decoder>

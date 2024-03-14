@@ -1,0 +1,20 @@
+<!--
+  Copyright (C) 2015, Wazuh Inc.
+-->
+
+<!--
+  Rules for:
+    FortiGate ID: 81600 - 80799
+-->
+
+<group name="fortigate,syslog,">
+
+  <rule id="181629" level="10">
+    <if_sid>81603</if_sid>
+    <match>attack</match>
+    <action>dropped</action>
+    <description>Fortigate attack dropped.</description>
+    <group>attack,gdpr_IV_35.7.d,hipaa_164.312.b,nist_800_53_AU.6,pci_dss_10.6.1,</group>
+  </rule>
+
+</group>

@@ -21,13 +21,42 @@
     <group>gdpr_IV_35.7.d,hipaa_164.312.b,nist_800_53_AU.6,pci_dss_10.6.1,</group>
   </rule>
 
+  <rule id="81622" level="2" overwrite="yes">
+    <if_sid>81603</if_sid>
+    <match>level=information|level="information"</match>
+    <action>tunnel-up</action>
+    <description>Fortigate: VPN user connected.</description>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+    <group>authentication_success,gdpr_IV_32.2,gpg13_7.1,hipaa_164.312.b,nist_800_53_AC.7,nist_800_53_AU.14,pci_dss_10.2.5,</group>
+  </rule>
+
   <rule id="181600" level="6">
     <if_sid>81622</if_sid>
-    <list field="dstuser" lookup="match_key">etc/lists/VPN-users</list>
-    <description>Unauthorized VPN User $(dstuser)</description>
+    <list field="user" lookup="not_match_key">etc/lists/VPN-users</list>
+    <description>Unauthorized VPN User: $(dstuser)</description>
     <mitre>
       <id>T1078</id>
     </mitre>
     <group>authentication_success,gdpr_IV_32.2,gpg13_7.1,hipaa_164.312.b,nist_800_53_AC.7,nist_800_53_AU.14,pci_dss_10.2.5,VPN-users,</group>
+  </rule>
+
+  <rule id="81624" level="2" overwrite="yes">
+    <if_sid>81603</if_sid>
+    <match>level=information|level="information"</match>
+    <action>tunnel-down</action>
+    <description>Fortigate: VPN user disconnected.</description>
+    <group>gdpr_IV_32.2,gpg13_7.1,hipaa_164.312.b,nist_800_53_AC.7,nist_800_53_AU.14,pci_dss_10.2.5,</group>
+  </rule>
+
+  <rule id="181619" level="10" frequency="100" timeframe="30">
+    <if_matched_sid>81618</if_matched_sid>
+    <same_source_ip />
+    <description>Fortigate: Reconnaissance Activity Detected from $(srcip).</description>
+    <group>gdpr_IV_35.7.d,hipaa_164.312.b,nist_800_53_AU.6,pci_dss_10.6.1,</group>
+    <mitre>
+      <id>T1595</id>
+    </mitre>
   </rule>
 </group>

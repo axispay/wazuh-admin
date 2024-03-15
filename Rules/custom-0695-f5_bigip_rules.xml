@@ -288,39 +288,6 @@
     <description>F5 BigIP CEF decoded grouped alerts</description>
   </rule>
 
-  <!-- ASM Violations -->
-  <rule id="65296" level="12">
-    <if_sid>65293</if_sid>
-    <field name="cs4Label">attack_type</field>
-    <field name="cs4" type="pcre2">^(?!^N\\A$|^$).*</field>
-    <description>F5 BigIP ASM: Violation detected, attack_type is $(cs4)</description>
-  </rule>
-
-  <!-- ASM Illegal action -->
-  <rule id="65294" level="12">
-    <if_sid>65296</if_sid>
-    <field name="type">Illegal</field>
-    <description>F5 BigIP ASM: Illegal $(action) detected</description>
-  </rule>
-
-  <!-- ASM sql injection -->
-  <rule id="65295" level="13">
-    <if_sid>65296</if_sid>
-    <field name="cs4">SQL-Injection</field>
-    <description>F5 BigIP ASM: SQL injection detected: $(code)</description>
-    <mitre>
-      <id>T1190</id>
-    </mitre>
-  </rule>
-
-  <!-- ASM Anomaly -->
-  <rule id="65297" level="12">
-    <if_sid>65293</if_sid>
-    <field name="cn3Label">attack_id</field>
-    <field name="cn3" type="pcre2">^(?!^N\\A$|^$).*</field>
-    <description>F5 BigIP ASM: Anomaly detected, attack_id is $(cn3), status is $(cs4)</description>
-  </rule>
-
   <!-- General rules by type, defined last to catch all -->
   <rule id="65298" level="2">
     <if_sid>65260</if_sid>
@@ -351,7 +318,7 @@
     <field name="event.type">crit</field>
     <description>F5 BigIP: Critical message detected.</description>
   </rule>
-
+</group>
 
 <!-- 
   Custom logs for the production/STG/HQ environments
@@ -359,22 +326,29 @@
   Reference for https://documentation.wazuh.com/current/user-manual/ruleset/rules-classification.html
 -->
 
+<group name="f5-bigip-cef,">
   <!-- ASM Violations -->
-  <rule id="65296" level="6" overwrite="yes">
+  <rule id="65296" level="6">
     <if_sid>65293</if_sid>
     <match>cs4Label=attack_type</match>
     <field name="attack" type="pcre2">^(?!^N\/A$|^$).*</field>
-    <description>F5 BigIP ASM: Violation detected, attack_type is $(attack)</description>
+    <description>F5 BigIP ASM: Violation detected</description>
   </rule>
 
   <rule id="165296" level="12">
     <if_sid>65296</if_sid>
     <field name="http.status" type="pcre2">^2</field>
-    <description>F5 BigIP ASM: Successful attack, attack_type is $(attack)</description>
+    <field name="violation.rating" type="pcre2">^(4|5)$</field>
+    <description>F5 BigIP ASM: Successful attack</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>attack,pci_dss_6.5,pci_dss_11.4,gdpr_IV_35.7.d,nist_800_53_SA.11,nist_800_53_SI.4,tsc_CC6.6,tsc_CC7.1,tsc_CC8.1,tsc_CC6.1,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,</group>
+ 
   </rule>
 
   <!-- ASM Illegal action -->
-  <rule id="65294" level="6" overwrite="yes">
+  <rule id="65294" level="6">
     <if_sid>65296</if_sid>
     <field name="type">Illegal</field>
     <description>F5 BigIP ASM: Illegal $(action) detected</description>
@@ -383,11 +357,17 @@
   <rule id="165294" level="12">
     <if_sid>65294</if_sid>
     <field name="http.status" type="pcre2">^2</field>
+    <field name="violation.rating" type="pcre2">^(4|5)$</field>
     <description>F5 BigIP ASM: Successful Illegal $(action) detected</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>attack,pci_dss_6.5,pci_dss_11.4,gdpr_IV_35.7.d,nist_800_53_SA.11,nist_800_53_SI.4,tsc_CC6.6,tsc_CC7.1,tsc_CC8.1,tsc_CC6.1,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,</group>
+ 
   </rule>
 
   <!-- ASM sql injection -->
-  <rule id="65295" level="6" overwrite="yes">
+  <rule id="65295" level="6">
     <if_sid>65296</if_sid>
     <field name="attack">SQL-Injection</field>
     <description>F5 BigIP ASM: SQL injection detected</description>
@@ -399,23 +379,40 @@
   <rule id="165295" level="13">
     <if_sid>65295</if_sid>
     <field name="http.status" type="pcre2">^2</field>
+    <field name="violation.rating" type="pcre2">^(4|5)$</field>
     <description>F5 BigIP ASM: Successful SQL injection detected</description>
     <mitre>
       <id>T1190</id>
     </mitre>
+    <group>attack,pci_dss_6.5,pci_dss_11.4,gdpr_IV_35.7.d,nist_800_53_SA.11,nist_800_53_SI.4,tsc_CC6.6,tsc_CC7.1,tsc_CC8.1,tsc_CC6.1,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,</group>
   </rule>
 
   <!-- ASM Anomaly -->
-  <rule id="65297" level="6" overwrite="yes">
+  <rule id="65297" level="6">
     <if_sid>65293</if_sid>
     <match>cn3Label=attack_id</match>
     <field name="cn3" type="pcre2">^(?!^N\/A$|^$).*</field>
     <description>F5 BigIP ASM: Anomaly detected, attack_id is $(cn3), status is $(attack)</description>
   </rule>
 
-  <rule id="165297" level="6">
+  <rule id="165297" level="12">
     <if_sid>65297</if_sid>
     <field name="http.status" type="pcre2">^2</field>
     <description>F5 BigIP ASM: Successful Anomaly detected, attack_id is $(cn3), status is $(attack)</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>attack,pci_dss_6.5,pci_dss_11.4,gdpr_IV_35.7.d,nist_800_53_SA.11,nist_800_53_SI.4,tsc_CC6.6,tsc_CC7.1,tsc_CC8.1,tsc_CC6.1,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,</group>
+  </rule>
+
+  <rule id="165298" level="10" timeframe="120" frequency="80">
+    <if_matched_group>f5-bigip-cef</if_matched_group>
+    <if_level>6</if_level>
+    <same_srcip />
+    <description>F5 BigIP ASM: Multiple attack signatures from $(srcip).</description>
+   <group>pci_dss_6.5,pci_dss_11.4,gdpr_IV_35.7.d,nist_800_53_SA.11,nist_800_53_SI.4,tsc_CC6.6,tsc_CC7.1,tsc_CC8.1,tsc_CC6.1,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,</group>
+    <mitre>
+      <id>T1498</id>
+    </mitre>
   </rule>
 </group>

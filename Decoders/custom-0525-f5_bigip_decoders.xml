@@ -69,11 +69,11 @@ Log samples:
 </decoder>
 
 <!-- General decoder message-->
-<decoder name="f5-bigip-cef-general-fields">
+<!-- <decoder name="f5-bigip-cef-general-fields">
   <parent>f5-bigip-cef</parent>
   <regex type="pcre2">CEF:0\|F5\|ASM\|[^\|]+\|(.+)|CEF:0\|F5\|[^\|]+\|[^\|]+\|(.+)</regex>
   <order>message</order>
-</decoder>
+</decoder> -->
 
 <!-- Structured fields -->
 <decoder name="f5-bigip-cef-general-fields">
@@ -97,14 +97,14 @@ Log samples:
 <decoder name="f5-bigip-cef-general-fields">
   <parent>f5-bigip-cef</parent>
   <regex type="pcre2">cs2=(\S+)?\s</regex>
-  <order>cs2</order>
+  <order>http.class.name</order>
 </decoder>
 
-<decoder name="f5-bigip-cef-general-fields">
+<!-- <decoder name="f5-bigip-cef-general-fields">
   <parent>f5-bigip-cef</parent>
   <regex type="pcre2">cs2Label=(\S+)?\s</regex>
   <order>cs2Label</order>
-</decoder>
+</decoder> -->
 
 <decoder name="f5-bigip-cef-general-fields">
   <parent>f5-bigip-cef</parent>
@@ -264,18 +264,6 @@ Log samples:
 
 <decoder name="f5-bigip-cef-general-fields">
   <parent>f5-bigip-cef</parent>
-  <regex type="pcre2">cn2=(\S+)?\s</regex>
-  <order>cn2</order>
-</decoder>
-
-<decoder name="f5-bigip-cef-general-fields">
-  <parent>f5-bigip-cef</parent>
-  <regex type="pcre2">cn2Label=(\S+)?\s</regex>
-  <order>cn2Label</order>
-</decoder>
-
-<decoder name="f5-bigip-cef-general-fields">
-  <parent>f5-bigip-cef</parent>
   <regex type="pcre2">cn3=(\S+)?\s</regex>
   <order>cn3</order>
 </decoder>
@@ -292,16 +280,16 @@ Log samples:
   <order>microservice</order>
 </decoder>
 
-<decoder name="f5-bigip-cef-general-fields">
+<!-- <decoder name="f5-bigip-cef-general-fields">
   <parent>f5-bigip-cef</parent>
   <regex type="pcre2">cs3Label=(\S+)?\s</regex>
   <order>cs3Label</order>
-</decoder>
+</decoder> -->
 
 <decoder name="f5-bigip-cef-general-fields">
   <parent>f5-bigip-cef</parent>
   <regex type="pcre2">cs3=(.*)</regex>
-  <order>cs3</order>
+  <order>request</order>
 </decoder>
 
 <!-- Illegal action-->
@@ -355,7 +343,7 @@ Log samples:
 <decoder name="f5-bigip-cef-general-fields">
   <parent>f5-bigip-cef</parent>
   <regex type="pcre2">cs6=(.*)\scs6Label=geo_location</regex>
-  <order>dstcountry</order>
+  <order>srccountry</order>
 </decoder>
 
 <decoder name="f5-bigip-cef-general-fields">
@@ -380,4 +368,10 @@ Log samples:
   <parent>f5-bigip-cef</parent>
   <regex type="pcre2">requestMethod=(\S+)?\s</regex>
   <order>http.method</order>
+</decoder>
+
+<decoder name="f5-bigip-cef-general-fields">
+  <parent>f5-bigip-cef</parent>
+  <regex type="pcre2">cn2=(\d+)</regex>
+  <order>violation.rating</order>
 </decoder>

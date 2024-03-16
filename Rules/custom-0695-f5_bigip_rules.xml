@@ -339,7 +339,7 @@
     <if_sid>65296</if_sid>
     <field name="http.status" type="pcre2">^2</field>
     <field name="violation.rating" type="pcre2">^(4|5)$</field>
-    <description>F5 BigIP ASM: Successful attack</description>
+    <description>F5 BigIP ASM: Successful attack detected</description>
     <mitre>
       <id>T1190</id>
     </mitre>
@@ -351,14 +351,14 @@
   <rule id="65294" level="6">
     <if_sid>65296</if_sid>
     <field name="type">Illegal</field>
-    <description>F5 BigIP ASM: Illegal $(action) detected</description>
+    <description>F5 BigIP ASM: Illegal action detected</description>
   </rule>
 
   <rule id="165294" level="12">
     <if_sid>65294</if_sid>
     <field name="http.status" type="pcre2">^2</field>
     <field name="violation.rating" type="pcre2">^(4|5)$</field>
-    <description>F5 BigIP ASM: Successful Illegal $(action) detected</description>
+    <description>F5 BigIP ASM: Successful Illegal action detected</description>
     <mitre>
       <id>T1190</id>
     </mitre>
@@ -405,7 +405,7 @@
     <group>attack,pci_dss_6.5,pci_dss_11.4,gdpr_IV_35.7.d,nist_800_53_SA.11,nist_800_53_SI.4,tsc_CC6.6,tsc_CC7.1,tsc_CC8.1,tsc_CC6.1,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,</group>
   </rule>
 
-  <rule id="165298" level="10" timeframe="120" frequency="80">
+  <rule id="165298" level="10" timeframe="60" frequency="3">
     <if_matched_group>f5-bigip-cef</if_matched_group>
     <if_level>6</if_level>
     <same_srcip />

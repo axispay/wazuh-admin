@@ -5,7 +5,7 @@
 -->
 
 <group name="fortigate,syslog,">
-  <rule id="81629" level="6" overwrite="yes">
+  <rule id="81629" level="12" overwrite="yes">
     <if_sid>81603</if_sid>
     <match>attack</match>
     <field name="subtype">ips</field>
@@ -32,15 +32,15 @@
     <group>authentication_success,gdpr_IV_32.2,gpg13_7.1,hipaa_164.312.b,nist_800_53_AC.7,nist_800_53_AU.14,pci_dss_10.2.5,</group>
   </rule>
 
-  <rule id="181600" level="6">
+  <!-- <rule id="181600" level="6">
     <if_sid>81622</if_sid>
-    <list field="user" lookup="not_match_key">etc/lists/VPN-users</list>
+    <list field="user" lookup="match_key_value" check_value="^vpn">etc/lists/VPN-users</list>
     <description>Unauthorized VPN User: $(dstuser)</description>
     <mitre>
       <id>T1078</id>
     </mitre>
     <group>authentication_success,gdpr_IV_32.2,gpg13_7.1,hipaa_164.312.b,nist_800_53_AC.7,nist_800_53_AU.14,pci_dss_10.2.5,VPN-users,</group>
-  </rule>
+  </rule> -->
 
   <rule id="81624" level="2" overwrite="yes">
     <if_sid>81603</if_sid>
@@ -50,10 +50,22 @@
     <group>gdpr_IV_32.2,gpg13_7.1,hipaa_164.312.b,nist_800_53_AC.7,nist_800_53_AU.14,pci_dss_10.2.5,</group>
   </rule>
 
-  <rule id="181619" level="10" frequency="100" timeframe="30">
+  <!-- <rule id="181619" level="10" frequency="10" timeframe="120">
     <if_matched_sid>81618</if_matched_sid>
     <same_source_ip />
-    <description>Fortigate: Reconnaissance Activity Detected from $(srcip).</description>
+    <different_dstport />
+    <description>Fortigate: Silent Reconnaissance Activity Detected from $(srcip).</description>
+    <group>gdpr_IV_35.7.d,hipaa_164.312.b,nist_800_53_AU.6,pci_dss_10.6.1,</group>
+    <mitre>
+      <id>T1595</id>
+    </mitre>
+  </rule> -->
+
+  <rule id="181620" level="10" frequency="100" timeframe="10" ignore="300">
+    <if_matched_sid>81618</if_matched_sid>
+    <same_source_ip />
+    <different_dstport />
+    <description>Fortigate: Aggressive Reconnaissance Activity Detected from $(srcip).</description>
     <group>gdpr_IV_35.7.d,hipaa_164.312.b,nist_800_53_AU.6,pci_dss_10.6.1,</group>
     <mitre>
       <id>T1595</id>

@@ -1,0 +1,6 @@
+<group name="bash">
+  <rule id="100010" level="3">
+    <program_name>^Bash_History</program_name>
+    <description>Bash History Logging</description>
+  </rule>
+</group>
